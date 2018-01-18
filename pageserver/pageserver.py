@@ -15,6 +15,11 @@
 
 import config    # Configure from .ini files and command line
 import logging   # Better than print statements
+import sys
+sys.path.append('./spew')
+import spew
+from spew import spew, main
+
 logging.basicConfig(format='%(levelname)s:%(message)s',
                     level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -90,9 +95,20 @@ def respond(sock):
     log.info("Request was {}\n***\n".format(request))
 
     parts = request.split()
+    
     if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+        if ".." in parts[1] or "//" in parts[1] or "~" in parts[1]:
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit("403 Forbidden", sock)
+        elif parts[1] == "/":
+            transmit(STATUS_OK, sock)
+            transmit(CAT, sock)
+        elif parts[1] == "/trivia.html" or parts[1] == "/trivia.css":
+            transmit(STATUS_OK, sock)
+            transmit(spew(parts[1]), sock)
+        else:
+            transmit(STATUS_NOT_FOUND, sock)
+            transmit("404 Page not Found", sock)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)

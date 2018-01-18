@@ -15,18 +15,22 @@ logging.basicConfig(format='%(levelname)s:%(message)s',
                     level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
-DOCROOT = "."   # Overridden by configuration
+DOCROOT = "./pages"   # Overridden by configuration
 
 def spew(file_name):
     """Spew contents of 'source' to standard output. 
     Source should be a file or file-like object.
     """
-    source_path = os.path.join(DOCROOT, file_name)
+    source_path = DOCROOT + file_name
+    print("PATH:" + source_path)
     log.debug("Source path: {}".format(source_path))
     try: 
+        output = ""
         with open(source_path, 'r', encoding='utf-8') as source:
             for line in source:
-                print(line.strip())
+                output += " " + line.strip()
+
+        return output
     except OSError as error:
         log.warn("Failed to open or read file")
         log.warn("Requested file was {}".format(source_path))
