@@ -106,6 +106,9 @@ def respond(sock):
         elif parts[1] == "/trivia.html" or parts[1] == "/trivia.css":
             transmit(STATUS_OK, sock)
             transmit(spew(parts[1]), sock)
+        elif "." in parts[1]:
+            transmit(STATUS_FORBIDDEN, sock)
+            transmit("403 Forbidden", sock)
         else:
             transmit(STATUS_NOT_FOUND, sock)
             transmit("404 Page not Found", sock)
