@@ -16,6 +16,7 @@
 import config    # Configure from .ini files and command line
 import logging   # Better than print statements
 import sys
+import os.path
 sys.path.append('./spew')
 import spew
 from spew import spew, main
@@ -103,15 +104,17 @@ def respond(sock):
         elif parts[1] == "/":
             transmit(STATUS_OK, sock)
             transmit(CAT, sock)
-        elif parts[1] == "/trivia.html" or parts[1] == "/trivia.css":
-            transmit(STATUS_OK, sock)
-            transmit(spew(parts[1]), sock)
+        elif ".html" in parts[1] or ".css" in parts[1]:
+            if os.path.isfile("./pages" + parts[1]):
+                transmit(STATUS_OK, sock)
+                transmit(spew(parts[1]), sock)
+            else:
+                transmit(STATUS_NOT_FOUND, sock)
+                transmit("404 Page not Found", sock)
+
         elif "." in parts[1]:
             transmit(STATUS_FORBIDDEN, sock)
             transmit("403 Forbidden", sock)
-        else:
-            transmit(STATUS_NOT_FOUND, sock)
-            transmit("404 Page not Found", sock)
     else:
         log.info("Unhandled request: {}".format(request))
         transmit(STATUS_NOT_IMPLEMENTED, sock)
